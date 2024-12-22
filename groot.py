@@ -24,13 +24,50 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
     # پیام‌های مختلف بر اساس گزینه انتخاب شده
     if query.data == "start_interaction":
-        await query.message.reply_text("شما در حال شروع تعامل با ربات هستید. انتخاب کنید:")
-    elif query.data == "help":
-        await query.message.reply_text("در اینجا می‌توانید راهنمایی‌های مختلف دریافت کنید.")
-    elif query.data == "support":
-        await query.message.reply_text("لطفاً پیام خود را برای پشتیبانی ارسال کنید. ما در سریع‌ترین زمان پاسخ خواهیم داد.")
-        # ذخیره وضعیت پشتیبانی برای شناسایی پیام‌های بعدی
-        context.user_data['support'] = True
+        keyboard = [
+            [InlineKeyboardButton("خرید اکانت جدید", callback_data="buy_account")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.message.reply_text("لطفاً گزینه مورد نظر را انتخاب کنید:", reply_markup=reply_markup)
+    elif query.data == "buy_account":
+        # انتخاب زمان سرویس
+        keyboard = [
+            [InlineKeyboardButton("1 ماه", callback_data="time_1_month")],
+            [InlineKeyboardButton("2 ماه", callback_data="time_2_month")],
+            [InlineKeyboardButton("3 ماه", callback_data="time_3_month")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.message.reply_text("لطفاً مدت زمان سرویس را انتخاب کنید:", reply_markup=reply_markup)
+    elif query.data in ["time_1_month", "time_2_month", "time_3_month"]:
+        # ذخیره زمان انتخابی
+        context.user_data['time'] = query.data.split('_')[1]  # استخراج زمان (1، 2، 3)
+        # انتخاب حجم
+        keyboard = [
+            [InlineKeyboardButton("10 گیگابایت", callback_data="volume_10")],
+            [InlineKeyboardButton("25 گیگابایت", callback_data="volume_25")],
+            [InlineKeyboardButton("50 گیگابایت", callback_data="volume_50")],
+            [InlineKeyboardButton("75 گیگابایت", callback_data="volume_75")],
+            [InlineKeyboardButton("100 گیگابایت", callback_data="volume_100")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.message.reply_text("لطفاً حجم اکانت را انتخاب کنید:", reply_markup=reply_markup)
+    elif query.data.startswith("volume_"):
+        # ذخیره حجم انتخابی
+        volume = int(query.data.split('_')[1])
+        context.user_data['volume'] = volume
+
+        # محاسبه مبلغ
+        time = int(context.user_data['time'])
+        price_per_month_per_25gb = 160000  # قیمت به ازای هر 25 گیگ برای یک ماه
+
+        # محاسبه تعداد 25 گیگ برای حجم انتخابی
+        total_months = time
+        total_volume = volume
+        units_of_25gb = (total_volume + 24) // 25  # محاسبه تعداد واحدهای 25 گیگ
+
+        total_price = units_of_25gb * total_months * price_per_month_per_25gb
+        # ارسال پیام با مبلغ نهایی
+        await query.message.reply_text(f"مبلغ نهایی شما برای {total_volume} گیگابایت و {total_months} ماه سرویس: {total_price} تومان است.")
 
 # هندلر برای دریافت پیام‌های پشتیبانی
 async def handle_support_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
