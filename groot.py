@@ -23,7 +23,7 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
     # پیام‌های مختلف بر اساس گزینه انتخاب شده
     if query.data == "greet":
-        await query.message.reply_text("سلام من ربات گروت ویژن هستم، چه کمکی از دستم برمیاد براتون؟")
+        await query.message.reply_text("سلام من گروت ویژن هستم، چه کمکی از دستم برمیاد براتون؟")
     elif query.data == "check_volume":
         await query.message.reply_text("حجم وی‌پی‌ان شما در حال بررسی است، در سریع‌ترین زمان ممکن براتون ارسال میشه.")
     elif query.data == "renew":
